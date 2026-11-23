@@ -8,20 +8,21 @@
 #define AD_HEADER_BYTE              0xA1
 
 namespace {
-QString formatDataSize(quint64 bytes)
-{
-    constexpr double KB = 1024.0;
-    constexpr double MB = 1024.0 * 1024.0;
-    constexpr double GB = 1024 * 1024.0 * 1024.0;
+    QString formatDataSize(quint64 bytes)
+    {
+        constexpr double KB = 1024.0;
+        constexpr double MB = 1024.0 * 1024.0;
+        constexpr double GB = 1024 * 1024.0 * 1024.0;
 
-    if (bytes >= static_cast<quint64>(MB)) {
-        return QString("%1 MB").arg(bytes / MB, 0, 'f', 2);
+        if (bytes >= static_cast<quint64>(GB)) {
+            return QString("%1 GB").arg(bytes / GB, 0, 'f', 2);
+        } else if (bytes >= static_cast<quint64>(MB)) {
+            return QString("%1 MB").arg(bytes / MB, 0, 'f', 2);
+        }
+        else {
+            return QString("%1 kB").arg(bytes / KB, 0, 'f', 2);
+        }
     }
-    else if (bytes >= static_cast<quint64>(GB)) {
-        return QString("%1 GB").arg(bytes / GB, 0, 'f', 2);
-    }
-    return QString("%1 kB").arg(bytes / KB, 0, 'f', 2);
-}
 }
 
 MainWindow::MainWindow(QWidget *parent)

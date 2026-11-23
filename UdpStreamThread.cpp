@@ -1,8 +1,17 @@
 #include "UdpStreamThread.h"
 #include <QUdpSocket>
 #include <QElapsedTimer>
+#include <QDateTime>
 #include <QtEndian>
 #include <QByteArray>
+
+namespace {
+uint8_t toBcd(int value)
+{
+    const int clamped = qBound(0, value, 99);
+    return static_cast<uint8_t>(((clamped / 10) << 4) | (clamped % 10));
+}
+}
 
 UdpStreamThread::UdpStreamThread(uint8_t magicByte, uint16_t port, bool requireAck, bool isVideo, QObject *parent)
     : QThread(parent)
@@ -19,11 +28,27 @@ void UdpStreamThread::run()
     const QHostAddress targetAddr("129.200.99.5");
     socket.bind(QHostAddress::AnyIPv4, 0);
     QElapsedTimer loopTimer;
+    QElapsedTimer testTimer;
+    bool wasTransmitting = false;
     uint8_t consecutiveRetries = 0;
 
     while (!isInterruptionRequested()) {
-        if (!isTransmitting.load() || !streamEnabled.load()) {
-            uint8_t consecutiveRetries = 0;
+        const bool transmitting = isTransmitting.load();
+        if (!transmitting) {
+            wasTransmitting = false;
+            consecutiveRetries = 0;
+            msleep(10);
+            continue;
+        }
+
+        // Spuštění stopek testu při přechodu do stavu Transmitting
+        if (!wasTransmitting) {
+            testTimer.start();
+            wasTransmitting = true;
+        }
+
+        if (!streamEnabled.load()) {
+            consecutiveRetries = 0;
             msleep(10);
             continue;
         }
@@ -42,8 +67,37 @@ void UdpStreamThread::run()
         qToBigEndian<uint32_t>(m_msgId, reinterpret_cast<uchar *>(raw + 1));
         qToBigEndian<uint16_t>(currentSize, reinterpret_cast<uchar *>(raw + 5));
 
-        for (int i = 7; i < currentSize + 7; ++i) {
-            raw[i] = static_cast<char>(((i - 7) % 255) + 1);
+        int payloadStart = 7;
+
+        // Specifická 9B časová hlavička pro Audio stream (0xAD) od 8. pozice (index 7)
+        if (m_magicByte == 0xA1 && currentSize >= 9) {
+            // 1) Čas od spuštění testu (3 B binárně: hodiny, minuty, sekundy)
+            const qint64 elapsedSecs = testTimer.elapsed() / 1000;
+            raw[7] = static_cast<char>((elapsedSecs / 3600) % 256);
+            raw[8] = static_cast<char>((elapsedSecs % 3600) / 60);
+            raw[9] = static_cast<char>(elapsedSecs % 60);
+
+            // Jednotné načtení systémového času a data
+            const QDateTime now = QDateTime::currentDateTime();
+            const QTime time = now.time();
+            const QDate date = now.date();
+
+            // 2) Reálný čas (3 B binárně: hodiny, minuty, sekundy)
+            raw[10] = static_cast<char>(time.hour());
+            raw[11] = static_cast<char>(time.minute());
+            raw[12] = static_cast<char>(time.second());
+
+            // 3) Datum (3 B v BCD: rok - 2000, den, měsíc)
+            raw[13] = static_cast<char>(toBcd(date.year() - 2000));
+            raw[14] = static_cast<char>(toBcd(date.day()));
+            raw[15] = static_cast<char>(toBcd(date.month()));
+
+            payloadStart = 16;
+        }
+
+        // Užitečná data za hlavičkou
+        for (int i = payloadStart; i < currentSize + 7; ++i) {
+            raw[i] = static_cast<char>(((i - payloadStart) % 255) + 1);
         }
 
         // Vyčištění případných opožděných datagramů před odesláním
