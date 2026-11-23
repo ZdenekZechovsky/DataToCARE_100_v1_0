@@ -18,6 +18,7 @@ public:
     std::atomic<double> periodMs{15.0};
     std::atomic<quint32> retryCount{0};
     std::atomic<quint32> errorCount{0};
+    std::atomic<quint64> bytesSent{0};
 
 signals:
     void retryCountChanged(quint32 count);

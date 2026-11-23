@@ -7,6 +7,23 @@
 #define UDP_AUDIO_DATA_PORT         1171
 #define AD_HEADER_BYTE              0xA1
 
+namespace {
+QString formatDataSize(quint64 bytes)
+{
+    constexpr double KB = 1024.0;
+    constexpr double MB = 1024.0 * 1024.0;
+    constexpr double GB = 1024 * 1024.0 * 1024.0;
+
+    if (bytes >= static_cast<quint64>(MB)) {
+        return QString("%1 MB").arg(bytes / MB, 0, 'f', 2);
+    }
+    else if (bytes >= static_cast<quint64>(GB)) {
+        return QString("%1 GB").arg(bytes / GB, 0, 'f', 2);
+    }
+    return QString("%1 kB").arg(bytes / KB, 0, 'f', 2);
+}
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -123,18 +140,23 @@ void MainWindow::syncUiToThreads()
     ui->lbl_video_bitrate->setText(QString("%1 Mbps").arg(vidMbps, 0, 'f', 2));
 }
 
-// V metodě MainWindow::startTransmission() doplň vynulování errorů:
 void MainWindow::startTransmission()
 {
     m_threadFd->retryCount.store(0);
     m_threadAudio->retryCount.store(0);
     m_threadFd->errorCount.store(0);
     m_threadAudio->errorCount.store(0);
+    m_threadFd->bytesSent.store(0);
+    m_threadAudio->bytesSent.store(0);
+    m_threadVideo->bytesSent.store(0);
 
     ui->lbl_fd_retries->setText("0");
     ui->lbl_audio_retries->setText("0");
     ui->lbl_fd_errors->setText("0");
     ui->lbl_audio_errors->setText("0");
+    ui->lbl_fd_sent->setText("0.00 kB");
+    ui->lbl_audio_sent->setText("0.00 kB");
+    ui->lbl_video_sent->setText("0.00 kB");
 
     m_isTransmitting = true;
     m_threadFd->isTransmitting.store(true);
@@ -167,6 +189,10 @@ void MainWindow::updateStatusBar()
 {
     const QString mode = m_isTransmitting ? "TRANSMITTING" : "STOPPED";
     ui->statusbar->showMessage(QString("Mode: %1 | Uptime: %2 s").arg(mode).arg(m_uptimeSeconds));
+
+    ui->lbl_fd_sent->setText(formatDataSize(m_threadFd->bytesSent.load()));
+    ui->lbl_audio_sent->setText(formatDataSize(m_threadAudio->bytesSent.load()));
+    ui->lbl_video_sent->setText(formatDataSize(m_threadVideo->bytesSent.load()));
 
     if (m_isTransmitting) {
         ++m_uptimeSeconds;

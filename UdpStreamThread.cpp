@@ -51,7 +51,10 @@ void UdpStreamThread::run()
             socket.readDatagram(nullptr, 0);
         }
 
-        socket.writeDatagram(packet, targetAddr, m_port);
+        const qint64 sent = socket.writeDatagram(packet, targetAddr, m_port);
+        if (sent > 0) {
+            bytesSent += static_cast<quint64>(sent);
+        }
 
         if (m_requireAck) {
             bool ackReceived = false;

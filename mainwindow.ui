@@ -34,6 +34,8 @@
          <item row="4" column="1"><widget class="QLabel" name="lbl_fd_retries"><property name="text"><string>0</string></property></widget></item>
          <item row="5" column="0"><widget class="QLabel"><property name="text"><string>Errors:</string></property></widget></item>
          <item row="5" column="1"><widget class="QLabel" name="lbl_fd_errors"><property name="text"><string>0</string></property></widget></item>
+         <item row="6" column="0"><widget class="QLabel"><property name="text"><string>Data Sent:</string></property></widget></item>
+         <item row="6" column="1"><widget class="QLabel" name="lbl_fd_sent"><property name="text"><string>0.00 kB</string></property></widget></item>
         </layout>
        </widget>
       </item>
@@ -59,6 +61,8 @@
          <item row="4" column="1"><widget class="QLabel" name="lbl_audio_retries"><property name="text"><string>0</string></property></widget></item>
          <item row="5" column="0"><widget class="QLabel"><property name="text"><string>Errors:</string></property></widget></item>
          <item row="5" column="1"><widget class="QLabel" name="lbl_audio_errors"><property name="text"><string>0</string></property></widget></item>
+         <item row="6" column="0"><widget class="QLabel"><property name="text"><string>Data Sent:</string></property></widget></item>
+         <item row="6" column="1"><widget class="QLabel" name="lbl_audio_sent"><property name="text"><string>0.00 kB</string></property></widget></item>
         </layout>
        </widget>
       </item>
@@ -80,6 +84,8 @@
          </item>
          <item row="3" column="0"><widget class="QLabel"><property name="text"><string>Bitrate:</string></property></widget></item>
          <item row="3" column="1"><widget class="QLabel" name="lbl_video_bitrate"><property name="text"><string>0 Mbps</string></property></widget></item>
+         <item row="4" column="0"><widget class="QLabel"><property name="text"><string>Data Sent:</string></property></widget></item>
+         <item row="4" column="1"><widget class="QLabel" name="lbl_video_sent"><property name="text"><string>0.00 kB</string></property></widget></item>
         </layout>
        </widget>
       </item>
