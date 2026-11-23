@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>850</width><height>300</height></rect>
+  </property>
+  <property name="windowTitle">
+   <string>UDP Streamer</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <!-- Flight Data GroupBox -->
+      <item>
+       <widget class="QGroupBox" name="groupBox_fd">
+        <property name="title"><string>Flight Data (ACK 5B)</string></property>
+        <layout class="QFormLayout" name="formLayout_fd">
+         <item row="0" column="0" colspan="2">
+          <widget class="QCheckBox" name="cb_fd_enable"><property name="text"><string>Enable Stream</string></property></widget>
+         </item>
+         <item row="1" column="0"><widget class="QLabel"><property name="text"><string>Packet (64-1024B):</string></property></widget></item>
+         <item row="1" column="1">
+          <widget class="QSlider" name="slider_fd_size"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="minimum"><number>64</number></property><property name="maximum"><number>1024</number></property></widget>
+         </item>
+         <item row="2" column="0"><widget class="QLabel"><property name="text"><string>Speed (15-1000ms):</string></property></widget></item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="slider_fd_speed"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="minimum"><number>15</number></property><property name="maximum"><number>1000</number></property></widget>
+         </item>
+         <item row="3" column="0"><widget class="QLabel"><property name="text"><string>Bitrate:</string></property></widget></item>
+         <item row="3" column="1"><widget class="QLabel" name="lbl_fd_bitrate"><property name="text"><string>0 kbps</string></property></widget></item>
+         <item row="4" column="0"><widget class="QLabel"><property name="text"><string>Retries:</string></property></widget></item>
+         <item row="4" column="1"><widget class="QLabel" name="lbl_fd_retries"><property name="text"><string>0</string></property></widget></item>
+         <item row="5" column="0"><widget class="QLabel"><property name="text"><string>Errors:</string></property></widget></item>
+         <item row="5" column="1"><widget class="QLabel" name="lbl_fd_errors"><property name="text"><string>0</string></property></widget></item>
+        </layout>
+       </widget>
+      </item>
+      <!-- Audio GroupBox -->
+      <item>
+       <widget class="QGroupBox" name="groupBox_audio">
+        <property name="title"><string>Audio (ACK 5B)</string></property>
+        <layout class="QFormLayout" name="formLayout_audio">
+         <item row="0" column="0" colspan="2">
+          <widget class="QCheckBox" name="cb_audio_enable"><property name="text"><string>Enable Stream</string></property></widget>
+         </item>
+         <item row="1" column="0"><widget class="QLabel"><property name="text"><string>Packet (64-1024B):</string></property></widget></item>
+         <item row="1" column="1">
+          <widget class="QSlider" name="slider_audio_size"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="minimum"><number>64</number></property><property name="maximum"><number>1024</number></property></widget>
+         </item>
+         <item row="2" column="0"><widget class="QLabel"><property name="text"><string>Speed (15-1000ms):</string></property></widget></item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="slider_audio_speed"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="minimum"><number>15</number></property><property name="maximum"><number>1000</number></property></widget>
+         </item>
+         <item row="3" column="0"><widget class="QLabel"><property name="text"><string>Bitrate:</string></property></widget></item>
+         <item row="3" column="1"><widget class="QLabel" name="lbl_audio_bitrate"><property name="text"><string>0 kbps</string></property></widget></item>
+         <item row="4" column="0"><widget class="QLabel"><property name="text"><string>Retries:</string></property></widget></item>
+         <item row="4" column="1"><widget class="QLabel" name="lbl_audio_retries"><property name="text"><string>0</string></property></widget></item>
+         <item row="5" column="0"><widget class="QLabel"><property name="text"><string>Errors:</string></property></widget></item>
+         <item row="5" column="1"><widget class="QLabel" name="lbl_audio_errors"><property name="text"><string>0</string></property></widget></item>
+        </layout>
+       </widget>
+      </item>
+      <!-- Video GroupBox -->
+      <item>
+       <widget class="QGroupBox" name="groupBox_video">
+        <property name="title"><string>Video (No ACK)</string></property>
+        <layout class="QFormLayout" name="formLayout_video">
+         <item row="0" column="0" colspan="2">
+          <widget class="QCheckBox" name="cb_video_enable"><property name="text"><string>Enable Stream</string></property></widget>
+         </item>
+         <item row="1" column="0"><widget class="QLabel"><property name="text"><string>Packet (64-1024B):</string></property></widget></item>
+         <item row="1" column="1">
+          <widget class="QSlider" name="slider_video_size"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="minimum"><number>64</number></property><property name="maximum"><number>1024</number></property></widget>
+         </item>
+         <item row="2" column="0"><widget class="QLabel"><property name="text"><string>Speed (0.5-1000ms):</string></property></widget></item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="slider_video_speed"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="minimum"><number>5</number></property><property name="maximum"><number>10000</number></property></widget>
+         </item>
+         <item row="3" column="0"><widget class="QLabel"><property name="text"><string>Bitrate:</string></property></widget></item>
+         <item row="3" column="1"><widget class="QLabel" name="lbl_video_bitrate"><property name="text"><string>0 Mbps</string></property></widget></item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item><widget class="QPushButton" name="btn_start"><property name="text"><string>Transmitt Start</string></property></widget></item>
+      <item><widget class="QPushButton" name="btn_stop"><property name="text"><string>Transmitt Stop</string></property><property name="enabled"><bool>false</bool></property></widget></item>
+      <item><widget class="QPushButton" name="btn_diag"><property name="text"><string>Diagnostic Data</string></property></widget></item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+</ui>
