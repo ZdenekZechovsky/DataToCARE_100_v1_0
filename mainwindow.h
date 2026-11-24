@@ -3,8 +3,10 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QPointer>
+#include <QCloseEvent>
 #include "UdpStreamThread.h"
 #include "DiagnosticDialog.h"
+#include "TimeReceiverThread.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,12 +20,16 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private slots:
     void syncUiToThreads();
     void startTransmission();
     void stopTransmission();
     void updateStatusBar();
     void openDiagnosticDialog();
+    void onFlightTimeReceived(const FlightTime_t &timeData);
 
 private:
     Ui::MainWindow *ui;
@@ -36,4 +42,5 @@ private:
     UdpStreamThread *m_threadVideo;
 
     QPointer<DiagnosticDialog> m_diagDialog;
+    TimeReceiverThread *m_threadTime;
 };

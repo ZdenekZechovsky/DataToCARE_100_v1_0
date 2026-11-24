@@ -11,6 +11,11 @@
 #define VD_HEADER_BYTE              0xDD
 
 namespace {
+
+    int fromBcd(uint8_t bcd)
+    {
+        return ((bcd >> 4) * 10) + (bcd & 0x0F);
+    }
     QString formatDataSize(quint64 bytes)
     {
         constexpr double KB = 1024.0;
@@ -80,6 +85,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_threadFd->start();
     m_threadAudio->start();
     m_threadVideo->start();
+
+    m_threadTime = new TimeReceiverThread(1040, this);
+    connect(m_threadTime, &TimeReceiverThread::flightTimeReceived, this, &MainWindow::onFlightTimeReceived);
+    m_threadTime->start();
 }
 
 MainWindow::~MainWindow()
@@ -96,7 +105,53 @@ MainWindow::~MainWindow()
     m_threadAudio->wait();
     m_threadVideo->wait();
 
+    m_threadTime->requestInterruption();
+    m_threadTime->wait();
+
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (m_diagDialog) {
+        delete m_diagDialog;
+        m_diagDialog = nullptr;
+    }
+
+    event->accept();
+    QApplication::quit();
+}
+
+// Implementace slotu v MainWindow.cpp:
+void MainWindow::onFlightTimeReceived(const FlightTime_t &timeData)
+{
+    // Systémový čas (binární hodiny, minuty, sekundy -> HH:MM:SS)
+    ui->lbl_audio_sys_time->setText(
+        QString("%1:%2:%3")
+            .arg(timeData.system_hour, 2, 10, QLatin1Char('0'))
+            .arg(timeData.system_min,  2, 10, QLatin1Char('0'))
+            .arg(timeData.system_sec,  2, 10, QLatin1Char('0'))
+        );
+
+    // GPS čas (binární hodiny, minuty, sekundy -> HH:MM:SS)
+    ui->lbl_audio_gps_time->setText(
+        QString("%1:%2:%3")
+            .arg(timeData.gps_hour, 2, 10, QLatin1Char('0'))
+            .arg(timeData.gps_min,  2, 10, QLatin1Char('0'))
+            .arg(timeData.gps_sec,  2, 10, QLatin1Char('0'))
+        );
+
+    // Datum v BCD formátu (DD.MM.20YY)
+    const int day   = fromBcd(timeData.bcd_day);
+    const int month = fromBcd(timeData.bcd_month);
+    const int year  = 2000 + fromBcd(timeData.bcd_year);
+
+    ui->lbl_audio_date->setText(
+        QString("%1.%2.%3")
+            .arg(day,   2, 10, QLatin1Char('0'))
+            .arg(month, 2, 10, QLatin1Char('0'))
+            .arg(year,  4, 10, QLatin1Char('0'))
+        );
 }
 
 void MainWindow::openDiagnosticDialog()
