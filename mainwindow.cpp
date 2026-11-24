@@ -7,6 +7,9 @@
 #define UDP_AUDIO_DATA_PORT         1171
 #define AD_HEADER_BYTE              0xA1
 
+#define UDP_VIDEO_DATA_PORT         1070
+#define VD_HEADER_BYTE              0xDD
+
 namespace {
     QString formatDataSize(quint64 bytes)
     {
@@ -35,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Inicializace vláken (testovací cílové porty 5001, 5002, 5003)
     m_threadFd    = new UdpStreamThread(FD_HEADER_BYTE, UDP_FLIGHT_DATA_PORT, true,  false, this);
     m_threadAudio = new UdpStreamThread(AD_HEADER_BYTE, UDP_AUDIO_DATA_PORT, true,  false, this);
-    m_threadVideo = new UdpStreamThread(0xDD, 5003, false, true,  this);
+    m_threadVideo = new UdpStreamThread(VD_HEADER_BYTE, UDP_VIDEO_DATA_PORT, false, true,  this);
 
     // Propojení tlačítek
     connect(ui->btn_start, &QPushButton::clicked, this, &MainWindow::startTransmission);
@@ -112,51 +115,55 @@ void MainWindow::syncUiToThreads()
 {
     // --- Flight Data ---
     const uint16_t fdSize = static_cast<uint16_t>(ui->slider_fd_size->value());
-    const double fdPeriod = static_cast<double>(ui->slider_fd_speed->value());
+    const double fdFreq = static_cast<double>(ui->slider_fd_speed->value());
     m_threadFd->streamEnabled.store(ui->cb_fd_enable->isChecked());
     m_threadFd->packetSize.store(fdSize);
-    m_threadFd->periodMs.store(fdPeriod);
+    m_threadFd->freqHz.store(fdFreq);
 
-    const double fdKbps = ((fdSize * 8.0) / (fdPeriod / 1000.0)) / 1000.0;
+    const double fdKbps = (fdFreq * fdSize * 8.0) / 1000.0;
     ui->lbl_fd_bitrate->setText(QString("%1 kbps").arg(fdKbps, 0, 'f', 2));
 
     // --- Audio ---
     const uint16_t audSize = static_cast<uint16_t>(ui->slider_audio_size->value());
-    const double audPeriod = static_cast<double>(ui->slider_audio_speed->value());
+    const double audFreq = static_cast<double>(ui->slider_audio_speed->value());
     m_threadAudio->streamEnabled.store(ui->cb_audio_enable->isChecked());
     m_threadAudio->packetSize.store(audSize);
-    m_threadAudio->periodMs.store(audPeriod);
+    m_threadAudio->freqHz.store(audFreq);
 
-    const double audKbps = ((audSize * 8.0) / (audPeriod / 1000.0)) / 1000.0;
+    const double audKbps = (audFreq * audSize * 8.0) / 1000.0;
     ui->lbl_audio_bitrate->setText(QString("%1 kbps").arg(audKbps, 0, 'f', 2));
 
     // --- Video (slider 5..10000 -> 0.5..1000.0 ms) ---
     const uint16_t vidSize = static_cast<uint16_t>(ui->slider_video_size->value());
-    const double vidPeriod = ui->slider_video_speed->value() / 10.0;
+    const double vidFreq = ui->slider_video_speed->value();
     m_threadVideo->streamEnabled.store(ui->cb_video_enable->isChecked());
     m_threadVideo->packetSize.store(vidSize);
-    m_threadVideo->periodMs.store(vidPeriod);
+    m_threadVideo->freqHz.store(vidFreq);
 
-    const double vidMbps = ((vidSize * 8.0) / (vidPeriod / 1000.0)) / 1'000'000.0;
+    const double vidMbps = (vidFreq * vidSize * 8.0) / 1'000'000.0;
     ui->lbl_video_bitrate->setText(QString("%1 Mbps").arg(vidMbps, 0, 'f', 2));
 }
 
 void MainWindow::startTransmission()
 {
     m_threadFd->retryCount.store(0);
-    m_threadAudio->retryCount.store(0);
     m_threadFd->errorCount.store(0);
+
+    m_threadAudio->retryCount.store(0);
     m_threadAudio->errorCount.store(0);
+
     m_threadFd->bytesSent.store(0);
     m_threadAudio->bytesSent.store(0);
     m_threadVideo->bytesSent.store(0);
 
     ui->lbl_fd_retries->setText("0");
-    ui->lbl_audio_retries->setText("0");
     ui->lbl_fd_errors->setText("0");
-    ui->lbl_audio_errors->setText("0");
     ui->lbl_fd_sent->setText("0.00 kB");
+
+    ui->lbl_audio_retries->setText("0");    
+    ui->lbl_audio_errors->setText("0");    
     ui->lbl_audio_sent->setText("0.00 kB");
+
     ui->lbl_video_sent->setText("0.00 kB");
 
     m_isTransmitting = true;

@@ -15,7 +15,7 @@ public:
     std::atomic<bool> isTransmitting{false};
     std::atomic<bool> streamEnabled{false};
     std::atomic<uint16_t> packetSize{64};
-    std::atomic<double> periodMs{15.0};
+    std::atomic<double> freqHz{15.0};
     std::atomic<quint32> retryCount{0};
     std::atomic<quint32> errorCount{0};
     std::atomic<quint64> bytesSent{0};

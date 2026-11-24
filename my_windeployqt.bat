@@ -1,0 +1,1 @@
+c:\Qt\6.11.0\msvc2022_64\bin\windeployqt6.exe c:\Users\EMC-Lab\source\repos\DataToCARE_100_v1_0\build\Desktop_Qt_6_11_0_MSVC2022_64bit_Release\DataToCARE_100_v1_0.exe

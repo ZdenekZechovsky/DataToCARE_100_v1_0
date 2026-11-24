@@ -56,7 +56,7 @@ void UdpStreamThread::run()
         loopTimer.start();
 
         const uint16_t currentSize = packetSize.load();
-        const double currentPeriodMs = periodMs.load();
+        const double currentPeriodMs = 1000.0 / freqHz.load();
 
         // Sestavení paketu: 1B Magic + 4B MsgID (MSB) + 2B Size (MSB) + Payload
         QByteArray packet;
